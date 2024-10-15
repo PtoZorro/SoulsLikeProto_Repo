@@ -24,18 +24,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Attack",
+                    "name": "Lock Camera",
                     "type": "Button",
-                    "id": "9b17f01e-b8a3-42a9-8ffa-bd9adec31657",
+                    "id": "0c29a1b9-2909-499f-9cf4-5cabd2e2637c",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Lock Camera",
+                    "name": "Attack",
                     "type": "Button",
-                    "id": "0c29a1b9-2909-499f-9cf4-5cabd2e2637c",
+                    "id": "9b17f01e-b8a3-42a9-8ffa-bd9adec31657",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
