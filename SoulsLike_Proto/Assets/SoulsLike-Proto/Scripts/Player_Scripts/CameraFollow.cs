@@ -11,6 +11,7 @@ public class CameraFollow : MonoBehaviour
     [Header("External References")]
     [SerializeField] Transform target;
     [SerializeField] PlayerInput playerInput;
+    [SerializeField] Camera playerCamera;
     [SerializeField] GameObject LockPointSprite;
     [SerializeField] LayerMask enemyLayer;
 
@@ -23,12 +24,14 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] float mouseSensitivity;
     [SerializeField] float stickSensitivity;
     [SerializeField] float lockEnemyRadius;
+    [SerializeField] float lockEnemyAngle;
+    [SerializeField] float cameraLockSpeed;
     private float rotX;
     private float rotY;
 
     [Header("Conditional Values")]
     bool isGamepad;
-    bool camLocked;
+    [SerializeField] bool camLocked;
 
     [Header("Input")]
     Vector2 lookInput;
@@ -51,9 +54,9 @@ public class CameraFollow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Manejo de rotaciÛn de c·mara
+        // Manejo de rotaci√≥n de c√°mara
         if (!camLocked) HandleRotation();
-        // FijaciÛn de c·mara hacia un enemigo
+        // Fijaci√≥n de c√°mara hacia un enemigo
         else if (camLocked) LookAtEnemy();
     }
 
@@ -75,7 +78,7 @@ public class CameraFollow : MonoBehaviour
         rotX += inputY * sensitivity * Time.deltaTime;
         rotY += inputX * sensitivity * Time.deltaTime;
 
-        // Limitar el giro vertical de la c·mara
+        // Limitar el giro vertical de la c√°mara
         rotX = Mathf.Clamp(rotX, -clampAngle, clampAngle);
 
         // Aplicar el giro obtenido
@@ -83,58 +86,82 @@ public class CameraFollow : MonoBehaviour
         transform.rotation = localRotation;
     }
 
-    void LockDirection()
+    void DetectEnemy()
     {
-        // Si la c·mara no est· fijada en el enemigo, fijamos
         if (!camLocked)
         {
-            // Comprobamos todos los enemigos cercanos
             Collider[] enemiesInRange = Physics.OverlapSphere(transform.position, lockEnemyRadius, enemyLayer);
 
-            // Si hemos detectado enemigos procedemos a fijar
-            if (enemiesInRange != null && enemiesInRange.Length > 0)
+            float closestDistanceToCenter = Mathf.Infinity;
+            GameObject closestEnemy = null;
+
+            // Coordenadas del centro de la pantalla
+            Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+
+            foreach (Collider enemy in enemiesInRange)
             {
+                // Convertimos la posici√≥n del enemigo al espacio de pantalla
+                Vector3 enemyInScreenPos = playerCamera.WorldToScreenPoint(enemy.transform.position);
+
+                // Si el enemigo est√° detr√°s de la c√°mara, ignorarlo
+                if (enemyInScreenPos.z < lockEnemyAngle) continue;
+
+                // Calculamos la distancia del enemigo al centro de la pantalla
+                float distanceToCenter = Vector2.Distance(new Vector2(enemyInScreenPos.x, enemyInScreenPos.y), screenCenter);
+
+                // Comprobamos si este enemigo est√° m√°s cerca del centro que el anterior m√°s cercano
+                if (distanceToCenter < closestDistanceToCenter)
+                {
+                    closestDistanceToCenter = distanceToCenter;
+                    closestEnemy = enemy.gameObject;
+                }
+            }
+
+            if (closestEnemy != null)
+            {
+                // Si hemos encontrado un enemigo cercano al centro, lo almacenamos
+                enemyLocked = closestEnemy;
+
                 //LockPointSprite.SetActive(true);
 
-                // Definimos la distancia mas cercana para saber que enemigo estar· m·s cerca
-                float closestDistance = lockEnemyRadius;
-
-                // Comprobamos uno a uno la distancia de todos los enemigos
-                foreach (Collider enemyCollider in enemiesInRange)
-                {
-                    // Calculamos distancia del enemigo 
-                    float distance = Vector3.Distance(transform.position, enemyCollider.gameObject.transform.position);
-
-                    // Cuando obtenemos el enemigo con la menor distancia lo seleccionamos y almacenamos
-                    if (distance < closestDistance)
-                    {
-                        closestDistance = distance;
-                        enemyLocked = enemyCollider.gameObject;
-                    }
-                }
-
-                // Indicamos que la c·mara est· fijada
+                // Indicamos que la c√°mara est√° fijada
                 camLocked = true;
             }
+            else
+            {
+                // Si no encontramos ning√∫n enemigo
+                enemyLocked = null;
+            }
+
         }
-        else if (camLocked) 
+        else if (camLocked)
         {
             //LockPointSprite.SetActive(false);
-            
-            // Indicamos que la c·mara ya no debe estar fijada
-            camLocked = false; 
+
+            // Indicamos que la c√°mara ya no debe estar fijada
+            camLocked = false;
         }
     }
 
     void LookAtEnemy()
     {
-        // La c·mara apunta siempre al enemigo
-        transform.LookAt(enemyLocked.transform.position);
+        if (enemyLocked != null)
+        {
+            // Calculamos la direcci√≥n hacia el enemigo
+            Vector3 directionToEnemy = enemyLocked.transform.position - transform.position;
+
+            // Calculamos la rotaci√≥n deseada para mirar al enemigo
+            Quaternion targetRotation = Quaternion.LookRotation(directionToEnemy);
+
+            // Realizamos una rotaci√≥n suave desde la rotaci√≥n actual hacia la rotaci√≥n deseada
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, cameraLockSpeed * Time.deltaTime);
+        }
     }
+
 
     void FollowPlayer()
     {
-        // Seguimiento de la camara al jugador con la posiciÛn del target y una velocidad asignada
+        // Seguimiento de la camara al jugador con la posici√≥n del target y una velocidad asignada
         float step = cameraMoveSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, target.position, step);
     }
@@ -149,7 +176,7 @@ public class CameraFollow : MonoBehaviour
     {
         if (context.started)
         {
-            LockDirection();
+            DetectEnemy();
         }
     }
 
