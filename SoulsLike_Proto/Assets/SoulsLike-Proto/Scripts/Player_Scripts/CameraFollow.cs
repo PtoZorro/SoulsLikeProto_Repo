@@ -12,7 +12,7 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] Transform target;
     [SerializeField] PlayerInput playerInput;
     [SerializeField] Camera playerCamera;
-    [SerializeField] GameObject LockPointSprite;
+    [SerializeField] GameObject marker;
     [SerializeField] LayerMask enemyLayer;
 
     [Header("Private References")]
@@ -44,7 +44,7 @@ public class CameraFollow : MonoBehaviour
         rotX = rot.x;
         rotY = rot.y;
         enemyLocked = null;
-        LockPointSprite.SetActive(false);
+        marker.SetActive(false);
 
         // Bloquar y esconder cursor
         Cursor.lockState = CursorLockMode.Locked;
@@ -57,7 +57,7 @@ public class CameraFollow : MonoBehaviour
         // Manejo de rotación de cámara
         if (!camLocked) HandleRotation();
         // Fijación de cámara hacia un enemigo
-        else if (camLocked) LookAtEnemy();
+        else if (camLocked) { LookAtEnemy(); MarkerPosOnEnemy(); }
     }
 
     void LateUpdate()
@@ -84,6 +84,13 @@ public class CameraFollow : MonoBehaviour
         // Aplicar el giro obtenido
         Quaternion localRotation = Quaternion.Euler(-rotX, rotY, 0.0f);
         transform.rotation = localRotation;
+    }
+
+    void FollowPlayer()
+    {
+        // Seguimiento de la camara al jugador con la posición del target y una velocidad asignada
+        float step = cameraMoveSpeed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, target.position, step);
     }
 
     void DetectEnemy()
@@ -122,8 +129,6 @@ public class CameraFollow : MonoBehaviour
                 // Si hemos encontrado un enemigo cercano al centro, lo almacenamos
                 enemyLocked = closestEnemy;
 
-                //LockPointSprite.SetActive(true);
-
                 // Indicamos que la cámara está fijada
                 camLocked = true;
             }
@@ -136,10 +141,11 @@ public class CameraFollow : MonoBehaviour
         }
         else if (camLocked)
         {
-            //LockPointSprite.SetActive(false);
-
             // Indicamos que la cámara ya no debe estar fijada
             camLocked = false;
+
+            // Escondemos el marcador 
+            marker.SetActive(false);
         }
     }
 
@@ -158,14 +164,23 @@ public class CameraFollow : MonoBehaviour
         }
     }
 
-
-    void FollowPlayer()
+    void MarkerPosOnEnemy()
     {
-        // Seguimiento de la camara al jugador con la posición del target y una velocidad asignada
-        float step = cameraMoveSpeed * Time.deltaTime;
-        transform.position = Vector3.MoveTowards(transform.position, target.position, step);
-    }
+        // Comprueba si hay un enemigo para seguir
+        if (enemyLocked != null && camLocked)
+        {
+            // Mostramos marcador
+            marker.SetActive(true);
 
+            Transform markerTransform = enemyLocked.transform.parent;
+
+            // Convierte la posición del enemigo en el mundo a coordenadas de pantalla
+            Vector3 screenPos = playerCamera.WorldToScreenPoint(markerTransform.position);
+
+            // Establece la posición del marcador
+            marker.transform.position = screenPos;
+        }
+    }
 
     public void OnLook(InputAction.CallbackContext context)
     {

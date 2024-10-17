@@ -11,11 +11,15 @@ public class LockPointBehavior : MonoBehaviour
     [SerializeField] float riseHeight;
     [SerializeField] float minDistance;
     [SerializeField] float maxSpeed;
+    [SerializeField] float farPointY;
 
     private Vector3 initialPosition;
 
     void Start()
     {
+        // Movemos inicialmente al punto deseado
+        transform.localPosition = new Vector3(0, farPointY, 0);
+
         // Guardamos la posición inicial del objeto
         initialPosition = transform.position;
 
@@ -32,6 +36,7 @@ public class LockPointBehavior : MonoBehaviour
         if (distanceToPlayer < minDistance)
         {
             // Proporcionalidad de la subida, más rápido conforme esté más cerca
+            // Esta función nos da un valor entre 0 (fuera de rango o en el punto más cercano) y 1 (justo al lado del jugador)
             float t = 1 - Mathf.Clamp01(distanceToPlayer / minDistance);
 
             // Calculamos la nueva posición vertical del objeto de manera proporcional
