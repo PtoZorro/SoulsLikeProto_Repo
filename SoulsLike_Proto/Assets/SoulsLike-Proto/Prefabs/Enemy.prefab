@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f678b3b1804bc174ea6c27db16a5ae9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  riseHeight: 2.75
-  minDistance: 4
+  riseHeight: 2
+  minDistance: 9
   maxSpeed: 5
-  farPointY: -4.75
+  farPointY: -3

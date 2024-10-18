@@ -3499,8 +3499,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6405616813939689585, guid: 9af3080dddf16564f902aab2c70db0f5,
         type: 3}
+      propertyPath: farPointY
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6405616813939689585, guid: 9af3080dddf16564f902aab2c70db0f5,
+        type: 3}
       propertyPath: riseHeight
-      value: 2.75
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 6405616813939689585, guid: 9af3080dddf16564f902aab2c70db0f5,
         type: 3}
