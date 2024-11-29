@@ -10,13 +10,15 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Transform cameraPos;
     [SerializeField] Animator animator;
 
-    [Header("Movement values")]
+    [Header("Movement Stats")]
     [SerializeField] float speed;
     [SerializeField] float rotationSmooth;
 
-    [Header("Animation States")]
+    [Header("Animation Config")]
     [SerializeField] bool isWalk;
     [SerializeField] bool isRun;
+    [SerializeField] float walkAnimMinSpeed;
+    [SerializeField] float minSpeedToRunAnim;
 
     [Header("Input values")]
     Vector2 moveInput;
@@ -95,14 +97,33 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleAnimations()
     {
-        // Según la velocidad activamos animación de caminar o trotar
-        if (moveInput.magnitude > 0 && moveInput.magnitude < 0.5) { isWalk = true; isRun = false; }
-        else if (moveInput.magnitude >= 0.5) { isWalk = false; isRun = true; }
-        else { isWalk = false; isRun = false; }
+        // Obtener la magnitud del input de movimiento
+        float inputMagnitude = moveInput.magnitude;
 
-        animator.SetBool("walk", isWalk ? true : false);
-        animator.SetBool("run", isRun ? true : false);
+        // Según la velocidad activamos animación de caminar o trotar
+        if (inputMagnitude > 0 && inputMagnitude < minSpeedToRunAnim)
+        {
+            isWalk = true;
+            isRun = false;
+            animator.SetFloat("walkSpeed", Mathf.Lerp(walkAnimMinSpeed, 1f, inputMagnitude / minSpeedToRunAnim)); // Velocidad de animación ajustada
+        }
+        else if (inputMagnitude >= minSpeedToRunAnim)
+        {
+            isWalk = false;
+            isRun = true;
+            animator.SetFloat("SpeedMultiplier", 1f); // Velocidad estándar para trotar/correr
+        }
+        else
+        {
+            isWalk = false;
+            isRun = false;
+            animator.SetFloat("SpeedMultiplier", 0f); // Detener la animación
+        }
+
+        animator.SetBool("walk", isWalk);
+        animator.SetBool("run", isRun);
     }
+
 
     public void OnMove(InputAction.CallbackContext context)
     {

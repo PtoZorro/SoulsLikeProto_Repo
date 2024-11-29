@@ -664,6 +664,8 @@ MonoBehaviour:
   rotationSmooth: 15
   isWalk: 0
   isRun: 0
+  walkAnimMinSpeed: 0.2
+  minSpeedToRunAnim: 0.6
 --- !u!114 &429728994
 MonoBehaviour:
   m_ObjectHideFlags: 0
