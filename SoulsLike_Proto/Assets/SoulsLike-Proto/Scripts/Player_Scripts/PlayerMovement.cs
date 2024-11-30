@@ -111,13 +111,13 @@ public class PlayerMovement : MonoBehaviour
         {
             isWalk = false;
             isRun = true;
-            animator.SetFloat("SpeedMultiplier", 1f); // Velocidad estándar para trotar/correr
+            animator.SetFloat("walkSpeed", 1f); // Velocidad estándar para trotar/correr
         }
         else
         {
             isWalk = false;
             isRun = false;
-            animator.SetFloat("SpeedMultiplier", 0f); // Detener la animación
+            animator.SetFloat("walkSpeed", 0f); // Detener la animación
         }
 
         animator.SetBool("walk", isWalk);

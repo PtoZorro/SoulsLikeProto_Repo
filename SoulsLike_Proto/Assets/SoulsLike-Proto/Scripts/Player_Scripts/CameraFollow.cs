@@ -54,18 +54,20 @@ public class CameraFollow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        // Manejo de rotación de cámara
+        if (!camLocked) HandleRotation();
+    }
+
+    void FixedUpdate()
+    {
+        // Fijación de cámara hacia un enemigo
+        if (camLocked) { LookAtEnemy(); MarkerPosOnEnemy(); }
     }
 
     void LateUpdate()
     {
         // Seguimiento de la camara al Player
         FollowPlayer();
-
-        // Manejo de rotación de cámara
-        if (!camLocked) HandleRotation();
-        // Fijación de cámara hacia un enemigo
-        else if (camLocked) { LookAtEnemy(); MarkerPosOnEnemy(); }
     }
 
     void HandleRotation()
